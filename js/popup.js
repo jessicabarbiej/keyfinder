@@ -1,48 +1,82 @@
-var save = document.getElementById('save');
+document.addEventListener("DOMContentLoaded", init);
 
-
-
-save.onclick = function() {
-
-  var keyword = document.getElementById("keyword").value;
-
-
-  if(keyword == "key") {
-    alert("already exist!");
-
-  }
-   if(keyword === ""){
-    alert("cannot be empty");
-  }
-
-  if(keyword == localStorage.getItem(keyword)){
-    alert("you can't add the same word twice!")
-  }
-  else
-  {
-    keyword.trim();
-      //setting key value to keyword for easy lopping
-      localStorage.setItem(keyword,keyword);
-
-   }
+async function init() {
+  await renderKeywords();
+  await renderStats();
+  document.getElementById("keywordForm").addEventListener("submit", handleAddKeyword);
 }
 
+async function renderKeywords() {
+  const response = await chrome.runtime.sendMessage({ type: "getKeywords" });
+  const keywords = response.keywords || [];
+  const list = document.getElementById("keywordList");
+  list.innerHTML = "";
 
-var i;
-for(i=0; i < localStorage.length; i++) {
-  //regex to filter keywords from localStorage and showing URLS
-  if(!/(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i.test(localStorage.key(i))){
-    if(localStorage.key(i) !== 'undefined')
-    {
-      $('body').append(`<li>${localStorage.key(i)}<button value=${localStorage.key(i)} class="btn"><i class="fa fa-trash"></i></button></li>`)
-    }
+  document.getElementById("keywordCount").textContent = keywords.length;
+
+  if (keywords.length === 0) {
+    list.innerHTML = '<li class="empty-state">No keywords configured</li>';
+    return;
+  }
+
+  for (const kw of keywords) {
+    const li = document.createElement("li");
+    li.className = "keyword-item";
+
+    const label = document.createElement("span");
+    label.className = "keyword-label";
+    label.textContent = kw;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "keyword-remove";
+    removeBtn.textContent = "\u00D7";
+    removeBtn.title = `Remove "${kw}"`;
+    removeBtn.addEventListener("click", () => handleRemoveKeyword(kw));
+
+    li.appendChild(label);
+    li.appendChild(removeBtn);
+    list.appendChild(li);
   }
 }
 
+async function renderStats() {
+  const response = await chrome.runtime.sendMessage({ type: "getFindings" });
+  const findings = response.findings || [];
+  document.getElementById("findingCount").textContent = findings.length;
+}
 
-$('.btn').click(function() {
-  var selectedItem = $(this).val();
-  localStorage.removeItem(selectedItem);
-  location.reload();
-  alert(`${selectedItem} removed`);
-})
+async function handleAddKeyword(e) {
+  e.preventDefault();
+  const input = document.getElementById("keywordInput");
+  const errorMsg = document.getElementById("errorMsg");
+  const keyword = input.value.trim();
+
+  errorMsg.hidden = true;
+
+  if (!keyword) {
+    showError("Keyword cannot be empty.");
+    return;
+  }
+
+  const result = await chrome.runtime.sendMessage({ type: "addKeyword", keyword });
+
+  if (!result.ok) {
+    showError(result.error);
+    return;
+  }
+
+  input.value = "";
+  await renderKeywords();
+}
+
+async function handleRemoveKeyword(keyword) {
+  await chrome.runtime.sendMessage({ type: "removeKeyword", keyword });
+  await renderKeywords();
+}
+
+function showError(msg) {
+  const errorMsg = document.getElementById("errorMsg");
+  errorMsg.textContent = msg;
+  errorMsg.hidden = false;
+  setTimeout(() => { errorMsg.hidden = true; }, 3000);
+}
