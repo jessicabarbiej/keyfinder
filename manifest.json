@@ -1,6 +1,6 @@
 {
   "name": "KeyFinder",
-  "description": "Passively discovers API keys, tokens, and secrets leaked in page scripts, DOM, network responses, and browser storage.",
+  "description": "Passively discovers API keys, tokens, and secrets leaked in page scripts, DOM, network responses, and browser storage. Available for Chrome and Firefox.",
   "version": "2.0.0",
   "manifest_version": 3,
   "action": {

@@ -5,12 +5,13 @@
 <h1 align="center">KeyFinder</h1>
 
 <p align="center">
-  <strong>Passive API key and secret discovery for Chrome</strong>
+  <strong>Passive API key and secret discovery for Chrome and Firefox</strong>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/manifest-v3-blue"/>
-  <img src="https://img.shields.io/badge/Chrome-Extension-green"/>
+  <a href="https://chromewebstore.google.com/detail/keyfinder/oogbljkilkfgdlkbmajlolpanilnnkim"><img src="https://img.shields.io/badge/Chrome-Extension-green"/></a>
+  <a href="https://addons.mozilla.org/en-US/firefox/addon/keyfinder-original/"><img src="https://img.shields.io/badge/Firefox-Add--on-orange"/></a>
   <img src="https://img.shields.io/github/license/momenbasel/keyFinder"/>
   <img src="https://img.shields.io/github/v/release/momenbasel/keyFinder"/>
   <img src="https://img.shields.io/github/downloads/momenbasel/keyFinder/total.svg"/>
@@ -18,7 +19,7 @@
 
 <hr>
 
-KeyFinder is a Chrome extension that passively scans every page you visit for leaked API keys, tokens, secrets, and credentials. It runs silently in the background with zero configuration required.
+KeyFinder is a browser extension for Chrome and Firefox that passively scans every page you visit for leaked API keys, tokens, secrets, and credentials. It runs silently in the background with zero configuration required.
 
 ## What It Detects
 
@@ -57,7 +58,7 @@ Additionally, **Shannon entropy analysis** is applied to detect random high-entr
 ## Features
 
 - **Zero dependencies** - Pure vanilla JavaScript, no jQuery, no external libraries
-- **Manifest V3** - Built for modern Chrome with service worker architecture
+- **Manifest V3** - Built for modern Chrome and Firefox with service worker architecture
 - **Passive scanning** - Runs automatically on every page load
 - **Custom keywords** - Add your own search terms to scan for
 - **Dashboard** - Professional results page with filtering, sorting, and search
@@ -68,12 +69,11 @@ Additionally, **Shannon entropy analysis** is applied to detect random high-entr
 
 ## Installation
 
-### From Release (Recommended)
+### Chrome
+- [Install from Chrome Web Store](https://chromewebstore.google.com/detail/keyfinder/oogbljkilkfgdlkbmajlolpanilnnkim)
 
-1. Go to [Releases](https://github.com/momenbasel/keyFinder/releases) and download the latest `.crx` file
-2. Open Chrome and navigate to `chrome://extensions`
-3. Enable **Developer mode** (top right toggle)
-4. Drag and drop the `.crx` file onto the page
+### Firefox
+- [Install from Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/keyfinder-original/)
 
 ### From Source
 
@@ -81,9 +81,15 @@ Additionally, **Shannon entropy analysis** is applied to detect random high-entr
 git clone https://github.com/momenbasel/keyFinder.git
 ```
 
-1. Open Chrome and go to `chrome://extensions`
+**Chrome:**
+1. Go to `chrome://extensions`
 2. Enable **Developer mode**
 3. Click **Load unpacked** and select the `keyFinder` folder
+
+**Firefox:**
+1. Go to `about:debugging` > "This Firefox"
+2. Click **Load Temporary Add-on**
+3. Select `manifest.firefox.json` from the `keyFinder` folder
 
 ## Usage
 
@@ -104,22 +110,26 @@ Default keywords: `key`, `api_key`, `apikey`, `api-key`, `secret`, `token`, `acc
 
 ```
 keyFinder/
-  manifest.json          # MV3 manifest
-  popup.html             # Extension popup UI
-  results.html           # Findings dashboard
+  manifest.json            # Chrome MV3 manifest
+  manifest.firefox.json    # Firefox MV3 manifest
+  popup.html               # Extension popup UI
+  results.html             # Findings dashboard
   js/
-    background.js        # Service worker - storage and message handling
-    patterns.js          # 80+ secret detection regex patterns
-    content.js           # Page scanner - DOM, scripts, network interception
-    popup.js             # Popup logic
-    results.js           # Dashboard logic with filtering and export
+    background.js          # Service worker - storage and message handling
+    patterns.js            # 80+ secret detection regex patterns
+    content.js             # Page scanner - DOM, scripts, network interception
+    interceptor.js         # XHR/Fetch hooking and window global scanning
+    popup.js               # Popup logic
+    results.js             # Dashboard logic with filtering and export
   css/
-    popup.css            # Popup styles
-    results.css          # Dashboard styles
+    popup.css              # Popup styles
+    results.css            # Dashboard styles
   icons/
     icon16.png
     icon48.png
     icon128.png
+  scripts/
+    build.sh               # Build Chrome and Firefox zip packages
 ```
 
 ## Disclaimer
